@@ -1,0 +1,97 @@
+@model SelectList // модель для выпадающего списка
+
+@{
+    ViewBag.Title = "Labs"; 
+}
+
+<h1>@ViewData["text"]</h1>
+<h2>Список</h2>
+<ol type="A">
+    @for (int i = 0; i < 5; i++)
+    {
+        <li>элемент @(i + 1) списка</li>
+    }
+</ol>
+<hr />
+
+        <h2>Лабораторная работа</h2>
+        <h3>Список</h3>
+        <ol type="A">
+            <li>Элемент 1 списка</li>
+            <li>Элемент 2 списка</li>
+        </ol>
+        <hr>
+
+        <h3>Форма</h3>
+            <form role="form" method="post" asp-action="index">
+                <fieldset class="row mb-3">
+                 <div class="row mb-3">
+            <label for="selDemo" class="col-sm-2 col-form-label">Выберите элемент</label>
+                <div class="col-sm-10 offset-sm-2">
+                    <select class="form-select" asp-items="Model" name="selDemo">
+                    </select>
+                </div>
+        </div>
+                <div class="row mb-3">
+                    <div class="col-sm-10 offset-sm-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="checkbox1" id="gridCheck1">
+                            <label class="form-check-label" for="gridCheck1">
+                                checkbox 1
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-10 offset-sm-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="checkbox2" id="gridCheck2">
+                            <label class="form-check-label" for="gridCheck2">
+                                checkbox 2
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-10 offset-sm-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1"
+                                value="option1" checked>
+                            <label class="form-check-label" for="gridRadios1">
+                                radio 1
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2"
+                                value="option2">
+                            <label class="form-check-label" for="gridRadios2">
+                                radio 2
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3"
+                                value="option3">
+                            <label class="form-check-label" for="gridRadios3">
+                                radio 3
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row mb-3">
+                <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputEmail" name="email">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" id="inputPassword" name="password">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>

@@ -1,0 +1,18 @@
+@* // эта часть кода отвечает за отображение меню навигации на сайте с выделением активного пункта меню в зависимости от текущего контроллера и области. *@
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"]? 
+    .ToString()?
+    .ToLower()
+    ?? String.Empty; 
+
+    var area = ViewContext.RouteData.Values["area"]?
+    .ToString()?
+    .ToLower()
+    ?? String.Empty;
+}
+<div class="navbar-nav">
+    <a class="nav-item nav-link @(controller=="home" ? "active":"")" asp-controller="home" asp-action="index">ЛБ 1</a>
+    <a class="nav-item nav-link @(controller=="product" ? "active":"")" asp-controller="product" asp-action="index">Каталог</a>
+    <a class="nav-item nav-link @(area=="admin" ? "active":"")" asp-area="admin" asp-controller="home" asp-action="index">Администрирование</a>
+</div>
