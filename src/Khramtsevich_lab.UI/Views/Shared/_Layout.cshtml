@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Khramtsevich_lab.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <a class="badge text-bg-dark text-decoration-none fs-6" asp-controller="home" asp-action="index">Khramtsevich</a>
+                <partial name="_MenuPartial" />
+                <partial name="_UserInfoPartial" />
+            </nav>
+        </div>
+    </header>
+
+    <main role="main" class="flex-grow-1">
+        <div class="container pb-3">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="mt-auto">
+        <div class="container">
+            <div class="navbar navbar-dark navbar-expand-md bg-dark">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-item nav-link" href="http://www.t.me">
+                        <i class="fa-brands fa fa-telegram"></i>
+                    </a>
+                    <a class="nav-item nav-link" href="http://www.instagram.com">
+                        <i class="fa-brands fa fa-instagram"></i>
+                    </a>
+                    <a class="nav-item nav-link" href="http://www.facebook.com">
+                        <i class="fa-brands fa fa-facebook"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
