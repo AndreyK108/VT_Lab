@@ -1,0 +1,49 @@
+﻿@page
+@model Khramtsevich_lab.UI.Areas.Admin.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Admin / Dishes";
+}
+
+<h1 class="mb-3">Администрирование блюд</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Добавить
+    </a>
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Цена</th>
+            <th>Вес</th>
+            <th>Изображение</th>
+            <th>Категория</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Dishes)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.Price</td>
+                <td>@item.Weight</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(item.Image))
+                    {
+                        <img src="@item.Image" style="height:60px; object-fit:cover;" />
+                    }
+                </td>
+                <td>@item.Category?.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<pager admin="true"
+       current-page="@Model.CurrentPage"
+       total-pages="@Model.TotalPages"></pager>
