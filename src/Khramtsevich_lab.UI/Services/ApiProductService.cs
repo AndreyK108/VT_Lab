@@ -75,13 +75,12 @@ namespace Khramtsevich_lab.Services
                     };
                 }
 
-                var data = await response.Content.ReadFromJsonAsync<ResponseData<Dish>>(_jsonOptions);
+                // В API возвращается Dish, не ResponseData<Dish>
+                var dish = await response.Content.ReadFromJsonAsync<Dish>(_jsonOptions);
 
-                return data ?? new ResponseData<Dish>
-                {
-                    Success = false,
-                    ErrorMessage = "Пустой ответ от API (Dish by id)"
-                };
+                return dish == null
+                    ? new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Dish by id)" }
+                    : new ResponseData<Dish> { Success = true, Data = dish };
             }
             catch (Exception ex)
             {
@@ -93,23 +92,57 @@ namespace Khramtsevich_lab.Services
             }
         }
 
-        // file параметр оставляем, но в этой лабе отправляем только JSON
+        // Создаём блюдо JSON, затем (если file != null) загружаем картинку multipart/form-data
         public async Task<ResponseData<Dish>> CreateProductAsync(Dish dish, IFormFile? file)
         {
             try
             {
-                var response = await _http.PostAsJsonAsync("api/Dishes", dish);
-                if (!response.IsSuccessStatusCode)
+                // 1) создаём объект
+                var createResponse = await _http.PostAsJsonAsync("api/Dishes", dish);
+                if (!createResponse.IsSuccessStatusCode)
                 {
                     return new ResponseData<Dish>
                     {
                         Success = false,
-                        ErrorMessage = $"API error: {(int)response.StatusCode} {response.ReasonPhrase}"
+                        ErrorMessage = $"API error: {(int)createResponse.StatusCode} {createResponse.ReasonPhrase}"
                     };
                 }
 
-                var data = await response.Content.ReadFromJsonAsync<ResponseData<Dish>>(_jsonOptions);
-                return data ?? new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Create dish)" };
+                // API возвращает Dish
+                var createdDish = await createResponse.Content.ReadFromJsonAsync<Dish>(_jsonOptions);
+                if (createdDish == null)
+                {
+                    return new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Create dish)" };
+                }
+
+                // 2) если файл есть — загрузим его в api/Dishes/{id}
+                if (file != null && file.Length > 0)
+                {
+                    using var content = new MultipartFormDataContent();
+                    using var streamContent = new StreamContent(file.OpenReadStream());
+
+                    // имя поля должно быть "image" (как в контроллере SaveImage)
+                    content.Add(streamContent, "image", file.FileName);
+
+                    var imgResponse = await _http.PostAsync($"api/Dishes/{createdDish.Id}", content);
+                    if (!imgResponse.IsSuccessStatusCode)
+                    {
+                        // объект создан, но картинка не сохранилась — вернём предупреждение
+                        return new ResponseData<Dish>
+                        {
+                            Success = false,
+                            ErrorMessage = $"Блюдо создано, но изображение не загрузилось: {(int)imgResponse.StatusCode} {imgResponse.ReasonPhrase}",
+                            Data = createdDish
+                        };
+                    }
+
+                    // можно обновить dish из API заново (чтобы Image подтянулось)
+                    var refreshed = await GetProductByIdAsync(createdDish.Id);
+                    if (refreshed.Success && refreshed.Data != null)
+                        createdDish = refreshed.Data;
+                }
+
+                return new ResponseData<Dish> { Success = true, Data = createdDish };
             }
             catch (Exception ex)
             {
@@ -131,8 +164,25 @@ namespace Khramtsevich_lab.Services
                     };
                 }
 
-                var data = await response.Content.ReadFromJsonAsync<ResponseData<Dish>>(_jsonOptions);
-                return data ?? new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Update dish)" };
+                // если есть файл — обновим картинку тем же endpoint-ом
+                if (file != null && file.Length > 0)
+                {
+                    using var content = new MultipartFormDataContent();
+                    using var streamContent = new StreamContent(file.OpenReadStream());
+                    content.Add(streamContent, "image", file.FileName);
+
+                    var imgResponse = await _http.PostAsync($"api/Dishes/{id}", content);
+                    if (!imgResponse.IsSuccessStatusCode)
+                    {
+                        return new ResponseData<Dish>
+                        {
+                            Success = false,
+                            ErrorMessage = $"Объект обновлён, но изображение не загрузилось: {(int)imgResponse.StatusCode} {imgResponse.ReasonPhrase}"
+                        };
+                    }
+                }
+
+                return await GetProductByIdAsync(id);
             }
             catch (Exception ex)
             {
@@ -154,8 +204,6 @@ namespace Khramtsevich_lab.Services
                     };
                 }
 
-                // В твоих контроллерах DELETE может вернуть NoContent,
-                // поэтому просто считаем успехом 2xx.
                 return new ResponseData<bool> { Success = true, Data = true };
             }
             catch (Exception ex)

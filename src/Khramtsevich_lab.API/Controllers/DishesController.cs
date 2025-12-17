@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Khramtsevich_lab.API.Data;
 using Khramtsevich_lab.Domain.Entities;
 using Khramtsevich_lab.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Khramtsevich_lab.API.Controllers
 {
@@ -15,10 +15,12 @@ namespace Khramtsevich_lab.API.Controllers
     public class DishesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public DishesController(AppDbContext context)
+        public DishesController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: api/Dishes?category=soups&pageNo=1&pageSize=3
@@ -71,25 +73,22 @@ namespace Khramtsevich_lab.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Dish>> GetDish(int id)
         {
-            var dish = await _context.Dishes.FindAsync(id);
+            var dish = await _context.Dishes
+                .Include(d => d.Category)
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if (dish == null)
-            {
                 return NotFound();
-            }
 
             return dish;
         }
 
         // PUT: api/Dishes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDish(int id, Dish dish)
         {
             if (id != dish.Id)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(dish).State = EntityState.Modified;
 
@@ -100,27 +99,57 @@ namespace Khramtsevich_lab.API.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!DishExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
 
             return NoContent();
         }
 
         // POST: api/Dishes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Dish>> PostDish(Dish dish)
         {
             _context.Dishes.Add(dish);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDish", new { id = dish.Id }, dish);
+            return CreatedAtAction(nameof(GetDish), new { id = dish.Id }, dish);
+        }
+
+        // POST: api/Dishes/{id}  (сохранение изображения)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> SaveImage(int id, IFormFile image)
+        {
+            var dish = await _context.Dishes.FindAsync(id);
+            if (dish == null)
+                return NotFound();
+
+            if (image == null || image.Length == 0)
+                return BadRequest("Файл не передан");
+
+            // wwwroot/Images
+            var imagesPath = Path.Combine(_env.WebRootPath, "Images");
+            Directory.CreateDirectory(imagesPath);
+
+            // случайное имя + расширение оригинала
+            var randomName = Path.GetRandomFileName();
+            var extension = Path.GetExtension(image.FileName);
+            var fileName = Path.ChangeExtension(randomName, extension);
+            var filePath = Path.Combine(imagesPath, fileName);
+
+            using (var stream = System.IO.File.OpenWrite(filePath))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            // абсолютный URL на файл
+            var url = $"{Request.Scheme}://{Request.Host}/Images/{fileName}";
+
+            dish.Image = url;
+            await _context.SaveChangesAsync();
+
+            return Ok(url);
         }
 
         // DELETE: api/Dishes/5
@@ -129,9 +158,7 @@ namespace Khramtsevich_lab.API.Controllers
         {
             var dish = await _context.Dishes.FindAsync(id);
             if (dish == null)
-            {
                 return NotFound();
-            }
 
             _context.Dishes.Remove(dish);
             await _context.SaveChangesAsync();
