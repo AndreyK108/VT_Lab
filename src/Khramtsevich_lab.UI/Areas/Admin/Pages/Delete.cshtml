@@ -1,0 +1,20 @@
+﻿@page
+@model Khramtsevich_lab.UI.Areas.Admin.Pages.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Удаление</h1>
+
+<div class="alert alert-warning">
+    Точно удалить блюдо <strong>@Model.Dish.Name</strong>?
+</div>
+
+<form method="post">
+    <input type="hidden" asp-for="Dish.Id" />
+    <button type="submit" class="btn btn-danger">
+        <i class="fa-solid fa-trash"></i> Delete
+    </button>
+    <a asp-page="Index" class="btn btn-secondary ms-2">Отмена</a>
+</form>

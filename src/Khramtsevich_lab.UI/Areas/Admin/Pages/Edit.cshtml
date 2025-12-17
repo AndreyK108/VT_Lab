@@ -1,0 +1,72 @@
+﻿@page
+@model Khramtsevich_lab.UI.Areas.Admin.Pages.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Редактирование</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" enctype="multipart/form-data">
+
+            <input type="hidden" asp-for="Dish.Id" />
+
+            <div class="mb-3">
+                <label asp-for="Dish.Name" class="form-label">Название</label>
+                <input asp-for="Dish.Name" class="form-control" />
+                <span asp-validation-for="Dish.Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Dish.Description" class="form-label">Описание</label>
+                <input asp-for="Dish.Description" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Dish.Price" class="form-label">Цена</label>
+                <input asp-for="Dish.Price" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Dish.Weight" class="form-label">Вес</label>
+                <input asp-for="Dish.Weight" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Dish.CategoryId" class="form-label">Категория</label>
+                <select asp-for="Dish.CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+            </div>
+
+            <div class="mb-3">
+                <div class="mb-2">
+                    <span class="form-label">Текущее изображение</span><br />
+                    @if (!string.IsNullOrWhiteSpace(Model.Dish.Image))
+                    {
+                        <img src="@Model.Dish.Image" style="max-height:160px; object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">нет</span>
+                    }
+                </div>
+
+                <label asp-for="Image" class="form-label">Новое изображение (если нужно)</label>
+                <input asp-for="Image" class="form-control" type="file" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-check"></i> Save
+            </button>
+            <a asp-page="Index" class="btn btn-secondary ms-2">Назад</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

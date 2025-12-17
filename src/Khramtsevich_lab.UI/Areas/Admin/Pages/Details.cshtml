@@ -1,0 +1,46 @@
+﻿@page
+@model Khramtsevich_lab.UI.Areas.Admin.Pages.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Детали</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Название</dt>
+    <dd class="col-sm-9">@Model.Dish.Name</dd>
+
+    <dt class="col-sm-3">Описание</dt>
+    <dd class="col-sm-9">@Model.Dish.Description</dd>
+
+    <dt class="col-sm-3">Цена</dt>
+    <dd class="col-sm-9">@Model.Dish.Price</dd>
+
+    <dt class="col-sm-3">Вес</dt>
+    <dd class="col-sm-9">@Model.Dish.Weight</dd>
+
+    <dt class="col-sm-3">Изображение</dt>
+    <dd class="col-sm-9">
+        @if (!string.IsNullOrWhiteSpace(Model.Dish.Image))
+        {
+            <img src="@Model.Dish.Image" style="max-height:200px; object-fit:cover;" />
+        }
+        else
+        {
+            <span class="text-muted">нет</span>
+        }
+    </dd>
+
+    <dt class="col-sm-3">Категория</dt>
+    <dd class="col-sm-9">@Model.Dish.Category?.Name</dd>
+</dl>
+
+<div>
+    <a asp-page="Edit" asp-route-id="@Model.Dish.Id" class="btn btn-primary">
+        <i class="fa-solid fa-pen"></i> Edit
+    </a>
+    <a asp-page="Index" class="btn btn-secondary ms-2">Назад</a>
+</div>
