@@ -10,32 +10,40 @@ namespace Khramtsevich_lab.Data
             using var scope = application.Services.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            // Кому выдаём права админа (твой текущий аккаунт)
-            const string adminEmail = "xramcevich@gmail.com";
+            // Только эти пользователи должны иметь админку
+            var allowedAdmins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "admin@gmail.com",
+                "xramcevich@gmail.com"
+            };
 
-            // Можно оставить запасного админа
-            const string fallbackAdminEmail = "admin@gmail.com";
-            const string fallbackAdminPassword = "123456";
+            // 1) Гарантируем наличие admin@gmail.com + claim admin
+            await EnsureAdminUser(userManager, "admin@gmail.com", "123456");
 
-            // 1) Выдать admin аккаунту, если он есть
-            await EnsureAdminClaim(userManager, adminEmail, createIfMissing: false);
+            // 2) Гарантируем claim admin для xramcevich@gmail.com (если он существует)
+            var xUser = await userManager.FindByEmailAsync("xramcevich@gmail.com");
+            if (xUser != null)
+                await EnsureAdminClaim(userManager, xUser);
 
-            // 2) Оставить/создать запасного admin@gmail.com
-            await EnsureAdminClaim(userManager, fallbackAdminEmail, createIfMissing: true, passwordIfCreate: fallbackAdminPassword);
+            // 3) Снимаем admin-claim со всех остальных
+            foreach (var u in userManager.Users)
+            {
+                var email = u.Email ?? "";
+                if (allowedAdmins.Contains(email))
+                    continue;
+
+                var claims = await userManager.GetClaimsAsync(u);
+                var adminClaims = claims.Where(c => c.Type == ClaimTypes.Role && c.Value == "admin").ToList();
+                foreach (var c in adminClaims)
+                    await userManager.RemoveClaimAsync(u, c);
+            }
         }
 
-        private static async Task EnsureAdminClaim(
-            UserManager<ApplicationUser> userManager,
-            string email,
-            bool createIfMissing,
-            string? passwordIfCreate = null)
+        private static async Task EnsureAdminUser(UserManager<ApplicationUser> userManager, string email, string password)
         {
             var user = await userManager.FindByEmailAsync(email);
-
             if (user == null)
             {
-                if (!createIfMissing) return;
-
                 user = new ApplicationUser
                 {
                     Email = email,
@@ -43,27 +51,24 @@ namespace Khramtsevich_lab.Data
                     EmailConfirmed = true
                 };
 
-                var createResult = await userManager.CreateAsync(user, passwordIfCreate ?? "123456");
-                if (!createResult.Succeeded)
+                var result = await userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
                 {
-                    foreach (var error in createResult.Errors)
-                        Console.WriteLine($"Seed user create error ({email}): {error.Description}");
+                    foreach (var err in result.Errors)
+                        Console.WriteLine($"Error: {err.Description}");
                     return;
                 }
             }
 
-            // Добавляем claim admin, если его ещё нет
+            await EnsureAdminClaim(userManager, user);
+        }
+
+        private static async Task EnsureAdminClaim(UserManager<ApplicationUser> userManager, ApplicationUser user)
+        {
             var claims = await userManager.GetClaimsAsync(user);
-            bool hasAdmin = claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "admin");
+            var hasAdmin = claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "admin");
             if (!hasAdmin)
-            {
-                var addResult = await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
-                if (!addResult.Succeeded)
-                {
-                    foreach (var error in addResult.Errors)
-                        Console.WriteLine($"Seed claim error ({email}): {error.Description}");
-                }
-            }
+                await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
         }
     }
 }

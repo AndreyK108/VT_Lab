@@ -6,38 +6,47 @@
     @await Component.InvokeAsync("Cart")
 
     <div class="btn-group ms-4 nav-color">
-        <button class="btn btn-secondary btn-sm dropdown-toggle"
+        <button class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-2"
                 type="button" id="dropdownMenuButton"
                 data-bs-toggle="dropdown" aria-expanded="false">
-            @(User?.Identity?.Name ?? "User")
-            <img img-controller="Image"
-                 img-action="GetAvatar"
-                 width="20"
+            <span>@(User?.Identity?.Name ?? "User")</span>
+
+            <img src="/Image/GetAvatar?v=@DateTimeOffset.UtcNow.ToUnixTimeSeconds()"
+                 width="24" height="24"
+                 style="object-fit:cover;"
                  alt="User Avatar"
-                 class="rounded nav-color" />
+                 class="rounded-circle" />
         </button>
 
-        <ul class="dropdown-menu text-center" aria-labelledby="dropdownMenuButton">
-            <li>
-                <span class="dropdown-item-text d-flex flex-column align-items-center">
-                    <img img-controller="Image"
-                         img-action="GetAvatar"
-                         width="50"
+        <ul class="dropdown-menu dropdown-menu-end text-center" aria-labelledby="dropdownMenuButton">
+            <li class="px-3 py-2">
+                <div class="d-flex flex-column align-items-center">
+                    <img src="/Image/GetAvatar?v=@DateTimeOffset.UtcNow.ToUnixTimeSeconds()"
+                         width="64" height="64"
+                         style="object-fit:cover;"
                          alt="User"
-                         class="rounded mb-2" />
-                    @(User?.Identity?.Name ?? "User")
-                </span>
+                         class="rounded-circle mb-2" />
+                    <div class="small text-muted">@(User?.Identity?.Name ?? "User")</div>
+                </div>
             </li>
+
             <li><hr class="dropdown-divider"></li>
+
+            <li>
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    Профиль
+                </a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
             <li>
                 <form id="logoutForm"
                       class="d-flex justify-content-center"
                       asp-area="Identity"
                       asp-route-returnurl="/"
                       asp-page="/Account/Logout">
-                    <button id="logout"
-                            type="submit"
-                            class="btn btn-link text-dark">
+                    <button id="logout" type="submit" class="btn btn-link text-dark">
                         Logout
                     </button>
                 </form>
@@ -48,15 +57,7 @@
 else
 {
     <div class="navbar-nav ms-auto">
-        <a asp-area="Identity"
-           asp-page="/Account/Login"
-           class="nav-item nav-link">
-            Login
-        </a>
-        <a asp-area="Identity"
-           asp-page="/Account/Register"
-           class="nav-item nav-link">
-            Sign Up
-        </a>
+        <a asp-area="Identity" asp-page="/Account/Login" class="nav-item nav-link">Login</a>
+        <a asp-area="Identity" asp-page="/Account/Register" class="nav-item nav-link">Sign Up</a>
     </div>
 }

@@ -1,0 +1,42 @@
+﻿@using Khramtsevich_lab.Data
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var page = ViewContext.ActionDescriptor.DisplayName ?? "";
+    var user = await UserManager.GetUserAsync(User);
+    var hasExternalLogins = user != null && (await UserManager.GetLoginsAsync(user)).Any();
+
+    string Active(string contains) => page.Contains(contains) ? "active" : "";
+}
+
+<ul class="nav nav-pills flex-column">
+
+    <li class="nav-item">
+        <a class="nav-link @Active("/Index")" asp-page="./Index">Профиль</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link @Active("/Email")" asp-page="./Email">Email</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link @Active("/ChangePassword")" asp-page="./ChangePassword">Пароль</a>
+    </li>
+
+    @if (hasExternalLogins)
+    {
+        <li class="nav-item">
+            <a class="nav-link @Active("/ExternalLogins")" asp-page="./ExternalLogins">Внешние логины</a>
+        </li>
+    }
+
+    <li class="nav-item">
+        <a class="nav-link @Active("/Avatar")" asp-page="./Avatar">Аватар</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link @Active("/PersonalData")" asp-page="./PersonalData">Персональные данные</a>
+    </li>
+
+</ul>

@@ -1,0 +1,42 @@
+﻿@page
+@model Khramtsevich_lab.UI.Areas.Identity.Pages.Account.Manage.AvatarModel
+@{
+    ViewData["Title"] = "Аватар";
+}
+
+<h2>Аватар</h2>
+
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["StatusMessage"]</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="mb-3">
+            <div class="mb-2">Текущий аватар:</div>
+            <img src="@Model.CurrentAvatarUrl" alt="Avatar"
+                 style="width:120px; height:120px; object-fit:cover; border-radius:50%;" />
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="mb-3">
+            <div class="mb-3">
+                <label asp-for="Avatar" class="form-label"></label>
+                <input asp-for="Avatar" class="form-control" type="file" />
+            </div>
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-outline-danger ms-2" asp-page-handler="Delete">
+                Удалить аватар
+            </button>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
