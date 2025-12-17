@@ -31,8 +31,4 @@
 		<None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Areas\Admin\Pages\" />
-	</ItemGroup>
-
 </Project>
