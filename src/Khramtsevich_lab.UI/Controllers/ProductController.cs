@@ -16,28 +16,26 @@ namespace Khramtsevich_lab.Controllers
             _categoryService = categoryService;
         }
 
-        // ✅ Задание 6: маршруты /Catalog и /Catalog/{category}
         [Route("Catalog")]
         [Route("Catalog/{category}")]
         public async Task<IActionResult> Index(string? category, int pageNo = 1)
         {
             var dishesResponse = await _productService.GetProductListAsync(category, pageNo);
-            var categoriesResponse = await _categoryService.GetCategoryListAsync();
-
-            ViewBag.Categories = categoriesResponse?.Data ?? new List<Category>();
-            ViewBag.SelectedCategory = category;
-
-            // Важно: в View передаём ProductListModel<Dish>, а не IEnumerable<Dish>
-            if (dishesResponse?.Data == null)
+            if (dishesResponse == null || !dishesResponse.Success || dishesResponse.Data == null)
             {
-                // чтобы View не падал
-                return View(new ProductListModel<Dish>
-                {
-                    Items = new List<Dish>(),
-                    CurrentPage = 1,
-                    TotalPages = 1
-                });
+                // Важно для ЛР8 (задание 3): при ошибке возвращаем NotFoundObjectResult
+                return NotFound(dishesResponse?.ErrorMessage ?? "Ошибка получения списка блюд");
             }
+
+            var categoriesResponse = await _categoryService.GetCategoryListAsync();
+            if (categoriesResponse == null || !categoriesResponse.Success || categoriesResponse.Data == null)
+            {
+                return NotFound(categoriesResponse?.ErrorMessage ?? "Ошибка получения списка категорий");
+            }
+
+            // ViewBag пишет в ViewData, поэтому в тестах можно читать через ViewData
+            ViewBag.Categories = categoriesResponse.Data;
+            ViewBag.SelectedCategory = category;
 
             return View(dishesResponse.Data);
         }

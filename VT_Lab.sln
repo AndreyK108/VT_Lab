@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khramtsevich_lab.API", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khramtsevich_lab.Domain", "src\Khramtsevich_lab.Domain\Khramtsevich_lab.Domain.csproj", "{3839C855-07F5-4800-B127-B508C7D01D62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khramtsevich_lab.Tests", "src\Khramtsevich_lab.Tests\Khramtsevich_lab.Tests.csproj", "{D9D9C7E1-2535-4FA8-B88D-6DFA42F05D5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{3839C855-07F5-4800-B127-B508C7D01D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3839C855-07F5-4800-B127-B508C7D01D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3839C855-07F5-4800-B127-B508C7D01D62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9D9C7E1-2535-4FA8-B88D-6DFA42F05D5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9D9C7E1-2535-4FA8-B88D-6DFA42F05D5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9D9C7E1-2535-4FA8-B88D-6DFA42F05D5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9D9C7E1-2535-4FA8-B88D-6DFA42F05D5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
