@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using Khramtsevich_lab.Domain.Models;
+using Khramtsevich_lab.UI.Extensions;
 
-namespace Khramtsevich_lab.ViewComponents 
+namespace Khramtsevich_lab.ViewComponents
 {
     public class CartViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke() 
+        public IViewComponentResult Invoke()
         {
-            return View();
+            var cart = HttpContext.Session.Get<Cart>("cart") ?? new Cart();
+            return View(cart);
         }
     }
 }

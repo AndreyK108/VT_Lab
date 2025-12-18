@@ -6,17 +6,16 @@ namespace Khramtsevich_lab.Domain.Models
 {
     public class Cart
     {
-        private List<CartItem> _items = new();
-
-        public IEnumerable<CartItem> Items => _items;
+        // ВАЖНО: public get/set, чтобы Session(JSON) мог восстановить корзину
+        public List<CartItem> Items { get; set; } = new();
 
         public void Add(Dish dish)
         {
-            var item = _items.FirstOrDefault(i => i.Item.Id == dish.Id);
+            var item = Items.FirstOrDefault(i => i.Item.Id == dish.Id);
 
             if (item == null)
             {
-                _items.Add(new CartItem
+                Items.Add(new CartItem
                 {
                     Item = dish,
                     Qty = 1
@@ -30,22 +29,22 @@ namespace Khramtsevich_lab.Domain.Models
 
         public void Remove(int dishId)
         {
-            _items.RemoveAll(i => i.Item.Id == dishId);
+            Items.RemoveAll(i => i.Item.Id == dishId);
         }
 
         public void Clear()
         {
-            _items.Clear();
+            Items.Clear();
         }
 
         public int Count()
         {
-            return _items.Sum(i => i.Qty);
+            return Items.Sum(i => i.Qty);
         }
 
         public decimal TotalPrice()
         {
-            return _items.Sum(i => i.Item.Price * i.Qty);
+            return Items.Sum(i => i.Item.Price * i.Qty);
         }
     }
 }

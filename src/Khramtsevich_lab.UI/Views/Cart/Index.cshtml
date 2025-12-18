@@ -1,0 +1,64 @@
+﻿@using Khramtsevich_lab.Domain.Models
+@model Cart
+
+@{
+    ViewData["Title"] = "Корзина";
+    var returnUrl = (string?)ViewBag.ReturnUrl ?? "/";
+}
+
+@if (!Model.Items.Any())
+{
+    <h2 class="m-2">Корзина пуста</h2>
+    <a class="btn btn-primary m-2" href="@returnUrl">Назад</a>
+}
+else
+{
+    <h2 class="m-2">Ваша корзина:</h2>
+
+    <table class="table table-striped align-middle">
+        @foreach (var line in Model.Items)
+        {
+            <tr>
+                <td style="width:220px">
+                    @if (!string.IsNullOrWhiteSpace(line.Item.Image))
+                    {
+                        <img src="@line.Item.Image" width="200" />
+                    }
+                </td>
+                <td>
+                    <div><strong>@line.Item.Name</strong></div>
+                    <div class="text-muted">@line.Item.Description</div>
+                </td>
+                <td class="text-center" style="width:80px">@line.Qty</td>
+                <td class="text-end" style="width:140px">
+                    @((line.Item.Price * line.Qty).ToString("C"))
+                </td>
+                <td class="text-end" style="width:80px">
+                    <a class="btn btn-danger"
+                       asp-action="Remove"
+                       asp-controller="Cart"
+                       asp-route-id="@line.Item.Id"
+                       asp-route-returnUrl="@returnUrl">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center px-2">
+        <div>
+            <a class="btn btn-secondary" href="@returnUrl">Назад</a>
+            <a class="btn btn-outline-secondary ms-2"
+               asp-controller="Cart"
+               asp-action="Clear"
+               asp-route-returnUrl="@returnUrl">
+                Очистить
+            </a>
+        </div>
+
+        <div class="fs-5">
+            <strong>Итого: @Model.TotalPrice().ToString("C")</strong>
+        </div>
+    </div>
+}

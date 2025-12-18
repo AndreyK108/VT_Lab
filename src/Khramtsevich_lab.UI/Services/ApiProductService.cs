@@ -75,12 +75,35 @@ namespace Khramtsevich_lab.Services
                     };
                 }
 
-                // В API возвращается Dish, не ResponseData<Dish>
-                var dish = await response.Content.ReadFromJsonAsync<Dish>(_jsonOptions);
+                // В разных реализациях API может вернуть либо Dish, либо ResponseData<Dish>.
+                // Делаем безопасно: пробуем оба варианта.
+                var json = await response.Content.ReadAsStringAsync();
 
-                return dish == null
-                    ? new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Dish by id)" }
-                    : new ResponseData<Dish> { Success = true, Data = dish };
+                // 1) пробуем как ResponseData<Dish>
+                try
+                {
+                    var wrapper = JsonSerializer.Deserialize<ResponseData<Dish>>(json, _jsonOptions);
+                    if (wrapper != null && wrapper.Success && wrapper.Data != null)
+                        return wrapper;
+                }
+                catch { /* ignore */ }
+
+                // 2) пробуем как Dish
+                try
+                {
+                    var dish = JsonSerializer.Deserialize<Dish>(json, _jsonOptions);
+                    return dish == null
+                        ? new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Dish by id)" }
+                        : new ResponseData<Dish> { Success = true, Data = dish };
+                }
+                catch (Exception ex2)
+                {
+                    return new ResponseData<Dish>
+                    {
+                        Success = false,
+                        ErrorMessage = $"Не удалось разобрать ответ API (Dish by id): {ex2.Message}"
+                    };
+                }
             }
             catch (Exception ex)
             {
@@ -92,12 +115,10 @@ namespace Khramtsevich_lab.Services
             }
         }
 
-        // Создаём блюдо JSON, затем (если file != null) загружаем картинку multipart/form-data
         public async Task<ResponseData<Dish>> CreateProductAsync(Dish dish, IFormFile? file)
         {
             try
             {
-                // 1) создаём объект
                 var createResponse = await _http.PostAsJsonAsync("api/Dishes", dish);
                 if (!createResponse.IsSuccessStatusCode)
                 {
@@ -108,26 +129,19 @@ namespace Khramtsevich_lab.Services
                     };
                 }
 
-                // API возвращает Dish
                 var createdDish = await createResponse.Content.ReadFromJsonAsync<Dish>(_jsonOptions);
                 if (createdDish == null)
-                {
                     return new ResponseData<Dish> { Success = false, ErrorMessage = "Пустой ответ от API (Create dish)" };
-                }
 
-                // 2) если файл есть — загрузим его в api/Dishes/{id}
                 if (file != null && file.Length > 0)
                 {
                     using var content = new MultipartFormDataContent();
                     using var streamContent = new StreamContent(file.OpenReadStream());
-
-                    // имя поля должно быть "image" (как в контроллере SaveImage)
                     content.Add(streamContent, "image", file.FileName);
 
                     var imgResponse = await _http.PostAsync($"api/Dishes/{createdDish.Id}", content);
                     if (!imgResponse.IsSuccessStatusCode)
                     {
-                        // объект создан, но картинка не сохранилась — вернём предупреждение
                         return new ResponseData<Dish>
                         {
                             Success = false,
@@ -136,7 +150,6 @@ namespace Khramtsevich_lab.Services
                         };
                     }
 
-                    // можно обновить dish из API заново (чтобы Image подтянулось)
                     var refreshed = await GetProductByIdAsync(createdDish.Id);
                     if (refreshed.Success && refreshed.Data != null)
                         createdDish = refreshed.Data;
@@ -164,7 +177,6 @@ namespace Khramtsevich_lab.Services
                     };
                 }
 
-                // если есть файл — обновим картинку тем же endpoint-ом
                 if (file != null && file.Length > 0)
                 {
                     using var content = new MultipartFormDataContent();

@@ -1,3 +1,6 @@
-<a class="navbar-text ms-auto" asp-controller="cart" asp-action="index">
-    00.0 руб <i class="fa-solid fa-cart-shopping"></i>(0)
+@using Khramtsevich_lab.Domain.Models
+@model Cart
+
+<a class="navbar-text ms-auto" asp-controller="Cart" asp-action="Index" asp-route-returnUrl="@Context.Request.Path">
+    @Model.TotalPrice().ToString("C") <i class="fa-solid fa-cart-shopping"></i>(@Model.Count())
 </a>

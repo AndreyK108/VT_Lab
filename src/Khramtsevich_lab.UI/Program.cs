@@ -4,8 +4,6 @@ using Khramtsevich_lab.Data;
 using System.Security.Claims;
 using Khramtsevich_lab.Services;
 using System.Globalization;
-using Khramtsevich_lab.Domain.Models;
-using Khramtsevich_lab.UI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +18,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 // ===========================
-
-// ====== Cart in Session (ЛР8) ======
-builder.Services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
-// ================================
 
 builder.Services.AddHttpClient<ICategoryService, ApiCategoryService>(client =>
 {
