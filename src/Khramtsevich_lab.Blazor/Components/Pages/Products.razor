@@ -8,6 +8,7 @@
 
 <CascadingValue Value="ProductService">
     <DishesList DishSelected="ShowDetails" />
+    <Pager />
 </CascadingValue>
 
 <DishDetails Dish="SelectedDish" />
@@ -15,16 +16,15 @@
 @code {
     [Inject] public IProductService<Dish> ProductService { get; set; } = default!;
 
-    [Parameter]
-    public Dish? SelectedDish { get; set; }
+    private Dish? SelectedDish { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await ProductService.GetProducts();
     }
 
-    void ShowDetails(int id)
+    private void ShowDetails(int id)
     {
-        SelectedDish = ProductService.Products!.First(d => d.Id == id);
+        SelectedDish = ProductService.Products?.FirstOrDefault(d => d.Id == id);
     }
 }
