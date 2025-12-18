@@ -3,13 +3,37 @@
 
 @if (Dish != null)
 {
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>@Dish.Name</h5>
-        </div>
+    <div class="card mt-4" style="width: 22rem;">
+        @if (!string.IsNullOrWhiteSpace(GetImageUrl(Dish.Image)))
+        {
+            <img src="@GetImageUrl(Dish.Image)"
+                 class="card-img-top"
+                 alt="Dish image"
+                 style="height: 200px; object-fit: cover;" />
+        }
+
         <div class="card-body">
-            <p><strong>Цена:</strong> @Dish.Price</p>
-            <p><strong>Категория:</strong> @Dish.Category?.Name</p>
+            <h5 class="card-title">@Dish.Name</h5>
+
+            @if (!string.IsNullOrWhiteSpace(Dish.Description))
+            {
+                <p class="card-text">@Dish.Description</p>
+            }
+
+            <p class="card-text mb-1">
+                <strong>Цена:</strong> @Dish.Price
+            </p>
+
+            <p class="card-text mb-1">
+                <strong>Категория:</strong> @Dish.Category?.Name
+            </p>
+
+            @if (Dish.Weight.HasValue)
+            {
+                <p class="card-text">
+                    <strong>Вес:</strong> @Dish.Weight г
+                </p>
+            }
         </div>
     </div>
 }
@@ -21,4 +45,16 @@ else
 @code {
     [Parameter]
     public Dish? Dish { get; set; }
+
+    private string? GetImageUrl(string? image)
+    {
+        if (string.IsNullOrWhiteSpace(image)) return null;
+
+        // если уже полный URL или абсолютный путь — возвращаем как есть
+        if (image.StartsWith("http", StringComparison.OrdinalIgnoreCase) || image.StartsWith("/"))
+            return image;
+
+        // если в БД хранится только имя файла — достраиваем URL до API
+        return $"https://localhost:7002/Images/{image}";
+    }
 }

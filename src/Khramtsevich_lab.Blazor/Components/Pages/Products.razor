@@ -10,6 +10,8 @@
     <DishesList DishSelected="ShowDetails" />
 </CascadingValue>
 
+<DishDetails Dish="SelectedDish" />
+
 @code {
     [Inject] public IProductService<Dish> ProductService { get; set; } = default!;
 
@@ -18,7 +20,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await ProductService.GetProducts(); // по умолчанию: pageNo=1, pageSize=3
+        await ProductService.GetProducts();
     }
 
     void ShowDetails(int id)
