@@ -14,6 +14,11 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 // ВАЖНО для TagHelper Pager
 builder.Services.AddHttpContextAccessor();
 
+// ====== Session (ЛР8) ======
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+// ===========================
+
 builder.Services.AddHttpClient<ICategoryService, ApiCategoryService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7002/");
@@ -23,7 +28,6 @@ builder.Services.AddHttpClient<IProductService, ApiProductService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7002/");
 });
-
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -66,6 +70,11 @@ else
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
+
+// ====== Session (ЛР8) ======
+app.UseSession();
+// ===========================
+
 app.UseAuthentication();
 app.UseAuthorization();
 
