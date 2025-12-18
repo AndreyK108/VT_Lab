@@ -1,7 +1,4 @@
-﻿@using Khramtsevich_lab.Domain.Entities
-@rendermode InteractiveServer
-
-@if (Dish != null)
+﻿@if (Dish != null)
 {
     <div class="card mt-4" style="width: 22rem;">
         @if (!string.IsNullOrWhiteSpace(GetImageUrl(Dish.Image)))
@@ -50,11 +47,9 @@ else
     {
         if (string.IsNullOrWhiteSpace(image)) return null;
 
-        // если уже полный URL или абсолютный путь — возвращаем как есть
         if (image.StartsWith("http", StringComparison.OrdinalIgnoreCase) || image.StartsWith("/"))
             return image;
 
-        // если в БД хранится только имя файла — достраиваем URL до API
         return $"https://localhost:7002/Images/{image}";
     }
 }

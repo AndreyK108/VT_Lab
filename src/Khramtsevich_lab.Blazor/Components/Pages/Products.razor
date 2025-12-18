@@ -1,11 +1,6 @@
 ﻿@page "/products"
 @rendermode InteractiveServer
 
-@using System.Linq
-@using Khramtsevich_lab.Domain.Entities
-@using Khramtsevich_lab.Blazor.Services
-@using Khramtsevich_lab.Blazor.Components.ProductComponents
-
 <CascadingValue Value="ProductService">
     <DishesList DishSelected="ShowDetails" />
     <Pager />

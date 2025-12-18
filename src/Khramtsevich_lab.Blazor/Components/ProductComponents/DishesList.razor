@@ -1,13 +1,8 @@
 ﻿@implements IDisposable
-@rendermode InteractiveServer
-
-@using System.Linq
-@using Khramtsevich_lab.Blazor.Services
-@using Khramtsevich_lab.Domain.Entities
 
 <h3>Блюда дня</h3>
 
-@if (ProductService.Products != null && ProductService.Products.Count() != 0)
+@if (ProductService.Products != null && ProductService.Products.Any())
 {
     <table class="table table-striped">
         <thead>
@@ -49,7 +44,7 @@ else
         ProductService.ListChanged += StateHasChanged;
     }
 
-    public async void OnDishSelected(int id)
+    private async Task OnDishSelected(int id)
     {
         await DishSelected.InvokeAsync(id);
     }
