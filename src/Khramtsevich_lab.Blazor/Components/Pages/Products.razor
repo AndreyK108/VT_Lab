@@ -1,5 +1,28 @@
 ﻿@page "/products"
 @rendermode InteractiveServer
 
-<h3>Products</h3>
-<p>Страница создана. Дальше подключим API и компоненты.</p>
+@using System.Linq
+@using Khramtsevich_lab.Domain.Entities
+@using Khramtsevich_lab.Blazor.Services
+@using Khramtsevich_lab.Blazor.Components.ProductComponents
+
+<CascadingValue Value="ProductService">
+    <DishesList DishSelected="ShowDetails" />
+</CascadingValue>
+
+@code {
+    [Inject] public IProductService<Dish> ProductService { get; set; } = default!;
+
+    [Parameter]
+    public Dish? SelectedDish { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ProductService.GetProducts(); // по умолчанию: pageNo=1, pageSize=3
+    }
+
+    void ShowDetails(int id)
+    {
+        SelectedDish = ProductService.Products!.First(d => d.Id == id);
+    }
+}

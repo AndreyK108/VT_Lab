@@ -1,0 +1,24 @@
+﻿@using Khramtsevich_lab.Domain.Entities
+@rendermode InteractiveServer
+
+@if (Dish != null)
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>@Dish.Name</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Цена:</strong> @Dish.Price</p>
+            <p><strong>Категория:</strong> @Dish.Category?.Name</p>
+        </div>
+    </div>
+}
+else
+{
+    <p class="mt-4"><em>Выберите блюдо для просмотра подробностей</em></p>
+}
+
+@code {
+    [Parameter]
+    public Dish? Dish { get; set; }
+}
