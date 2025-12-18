@@ -4,12 +4,29 @@ using Khramtsevich_lab.Data;
 using System.Security.Claims;
 using Khramtsevich_lab.Services;
 using System.Globalization;
+using Serilog;
+using Khramtsevich_lab.UI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var cultureInfo = new CultureInfo("be-BY");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
+// ====== Serilog (ЛР8, Задание 2) ======
+var logPath = Path.Combine(builder.Environment.ContentRootPath, "logs", "log.txt");
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+Log.Information(
+    "UI started. ContentRootPath={ContentRootPath}. LogPath={LogPath}",
+    builder.Environment.ContentRootPath,
+    logPath
+);
+// =======================================
 
 // ВАЖНО для TagHelper Pager
 builder.Services.AddHttpContextAccessor();
@@ -29,7 +46,6 @@ builder.Services.AddHttpClient<IProductService, ApiProductService>(client =>
     client.BaseAddress = new Uri("https://localhost:7002/");
 });
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -67,13 +83,16 @@ else
     app.UseHsts();
 }
 
-app.UseStaticFiles();
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 
-// ====== Session (ЛР8) ======
+// ====== Middleware FileLogger (ЛР8) ======
+app.UseMiddleware<FileLoggerMiddleware>();
+// ========================================
+
 app.UseSession();
-// ===========================
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -89,4 +108,12 @@ app.MapRazorPages()
    .WithStaticAssets();
 
 await DbInit.SeedData(app);
-app.Run();
+
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}
